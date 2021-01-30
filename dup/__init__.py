@@ -11,11 +11,19 @@ def version():
     
 def usage():
     print(f"dup version {version()}")
-    print("Find duplicate files within the current folder")
+    print("Find duplicate files within the current folder (recursively)")
     print("Control flags are:")
     print("    -h  include hidden files/folders (excluded by default)*")
     print("    -z  include zero-length files (ignored by default)*")
-    print("\n* not yet implemented")
+    print("    -R  non-recursively*")
+    print("Commands for manipulating duplicates:")
+    print("    --find    report duplicates only (default)**")
+    print("    --move    move duplicates into their own folder for review*")
+    print("    --delete  delete duplicates*")
+    print("Other behaviour:")
+    print("    --list-ext list unique extensions in folder tree*")
+    print("    --del-ext  delete files with specified extension*")
+    print("* not yet implemented\n")
 
 def find():
     dir = '.'
