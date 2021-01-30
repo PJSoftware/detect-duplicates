@@ -53,12 +53,10 @@ def recurse_into_folder(dir):
                 recurse_into_folder(entry.path)
 
 def hash_file(file_path: str) -> str:
-    BUF_SIZE = 8388608 # 8Mb
     sha1 = hashlib.sha1()
-
     with open(file_path, 'rb') as f:
         while True:
-            data = f.read(BUF_SIZE)
+            data = f.read(sha1.block_size)
             if not data:
                 break
             sha1.update(data)
