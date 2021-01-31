@@ -2,6 +2,7 @@ import hashlib
 import os
 
 by_size = {}
+by_hash = {}
 
 def version():
     folder = os.path.abspath(os.path.dirname(__file__))
@@ -34,6 +35,10 @@ def find():
             print(f"Files of size {size}: {count}")
             for file in by_size[size]:
                 hash = hash_file(file)
+                if not size in by_hash:
+                    by_hash[size] = {}
+                if not hash in by_hash[size]:
+                    by_hash[size][hash] = {}
                 print(f"  {file}: {hash}")
 
 def recurse_into_folder(dir):
@@ -49,6 +54,8 @@ def recurse_into_folder(dir):
         elif entry.is_dir():
             if entry.name[:1] == '.':
                 print(f"Skipping folder {entry.path}")
+            # elif entry.name == '_dup_archive':
+            #     print(f"Skipping archive folder {entry.path}")
             else:
                 recurse_into_folder(entry.path)
 
