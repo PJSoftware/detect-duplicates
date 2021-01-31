@@ -1,48 +1,30 @@
 import hashlib
 import os
 
-by_size = {}
-by_hash = {}
+from . import recurse_into_folder, output
+from .config import Verbosity
 
 def find():
-    print("Find duplicates")
-    dir = '.'
-    recurse_into_folder(dir)
+    output("Find duplicates", Verbosity.Required)
+    by_size = recurse_into_folder('.')
+    by_hash = {}
     for size in sorted(by_size.keys()):
         count = len(by_size[size])
         if count > 1:
-            print(f"Files of size {size}: {count}")
+            output(f"Files of size {size}: {count}", Verbosity.Waffle)
             for file in by_size[size]:
-                hash = hash_file(file)
+                file_hash = hash_file(file)
                 if not size in by_hash:
                     by_hash[size] = {}
-                if not hash in by_hash[size]:
-                    by_hash[size][hash] = {}
-                print(f"  {file}: {hash}")
+                if not file_hash in by_hash[size]:
+                    by_hash[size][file_hash] = {}
+                output(f"  {file}: {file_hash}", Verbosity.Waffle)
 
 def move():
     print("Move duplicates")
 
 def delete():
     print("Delete duplicates")
-
-def recurse_into_folder(dir):
-    print(f"Searching in {dir}")
-    for entry in os.scandir(dir):
-        if entry.is_file():
-            size = os.path.getsize(entry.path)
-            if size > 0:
-                print(f"  {entry.path}: {size} bytes")
-                if size not in by_size:
-                    by_size[size] = []
-                by_size[size].append(entry.path)
-        elif entry.is_dir():
-            if entry.name[:1] == '.':
-                print(f"Skipping folder {entry.path}")
-            # elif entry.name == '_dup_archive':
-            #     print(f"Skipping archive folder {entry.path}")
-            else:
-                recurse_into_folder(entry.path)
 
 def hash_file(file_path: str) -> str:
     sha1 = hashlib.sha1()
