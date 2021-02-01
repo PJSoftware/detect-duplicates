@@ -29,6 +29,7 @@ def main():
 
     arg = parser.parse_args()
 
+    output(f"dup v{version()}")
     config.VERBOSITY_LEVEL = min(arg.verbose, Verbosity.Waffle)
     config.INCLUDE_HIDDEN = arg.hidden
     config.IGNORE_ZERO_LENGTH = not arg.zero
@@ -36,15 +37,15 @@ def main():
     if arg.show:
         config.SHOW_DONT_ACT = True
         config.VERBOSITY_LEVEL = max(config.VERBOSITY_LEVEL, Verbosity.Detailed)
-        output("  * --show specified; no action will be taken (implies -vv)", Verbosity.Detailed)
+        output("* --show specified; no action will be taken (implies -vv)", Verbosity.Detailed)
 
-    output(f"  * verbosity level set to {config.VERBOSITY_LEVEL}", Verbosity.Detailed)
+    output(f"* verbosity level set to {config.VERBOSITY_LEVEL}", Verbosity.Detailed)
     
     if arg.zero:
-        output("  * --zero specified; zero-length files will be included in comparison", Verbosity.Detailed)
+        output("* --zero specified; zero-length files will be included in comparison", Verbosity.Detailed)
     
     if arg.hidden:
-        output("  * --hidden specified; hidden files and folders will be included", Verbosity.Detailed)
+        output("* --hidden specified; hidden files and folders will be included", Verbosity.Detailed)
 
     if arg.find:
         arg.del_ext = None

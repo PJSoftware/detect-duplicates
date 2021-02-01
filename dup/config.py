@@ -10,3 +10,5 @@ VERBOSITY_LEVEL = Verbosity.Required
 INCLUDE_HIDDEN = False
 IGNORE_ZERO_LENGTH = True
 SHOW_DONT_ACT = False
+
+ARCHIVE_FOLDER = '_dup_archive_'
