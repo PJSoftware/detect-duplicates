@@ -1,7 +1,7 @@
 import hashlib
 import os
 
-from . import recurse_into_folder, output, plural
+from . import recurse_into_folder, output, plural, foldername
 from .config import Verbosity
 from . import global_var
 
@@ -17,7 +17,7 @@ def delete():
     print("Delete duplicates")
 
 def find_duplicates() -> dict:
-    output("Scanning current folder tree", Verbosity.Information)
+    output("Scanning current folder tree", Verbosity.Required)
     global_var.files_found = 0
     by_size = recurse_into_folder('.')
     files = plural(global_var.files_found, "file")
@@ -27,7 +27,7 @@ def find_duplicates() -> dict:
     return by_hash
 
 def calculate_hashes(by_size: dict) -> dict:
-    output("Calculating hashes of same-sized files", Verbosity.Information)
+    output("Calculating hashes of same-sized files", Verbosity.Required)
     global_var.duplicates_found = 0
     global_var.size_matched = 0
     by_hash = {}
@@ -44,7 +44,7 @@ def calculate_hashes(by_size: dict) -> dict:
                 else:
                     global_var.duplicates_found += 1
                 by_hash[size][file_hash].append(file)
-                output(f"{file}: {file_hash}", Verbosity.Waffle)
+                output(f"{foldername(file)}: {file_hash}", Verbosity.Waffle)
     return by_hash
 
 def hash_file(file_path: str) -> str:
