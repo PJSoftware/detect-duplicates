@@ -44,6 +44,7 @@ def output(string: str, level: int = Verbosity.Required):
         print("  "*level + string)
 
 def plural(num: int, noun: str, nouns: str = "") -> str:
+    """pluralise a noun depending on number"""
     if nouns == "":
         nouns = noun + "s"
     if num == 1:
@@ -51,6 +52,7 @@ def plural(num: int, noun: str, nouns: str = "") -> str:
     return f"{num} {nouns}"
 
 def foldername(fn: str) -> str:
+    """workaround for dodgy file/folder names which break Python"""
     if platform.system() == "Windows":
         return fn.encode("utf-8").decode("cp1252","backslashreplace")
     return fn
