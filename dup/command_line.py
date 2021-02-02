@@ -13,13 +13,13 @@ def main():
         epilog="* not yet implemented")
     parser.add_argument(
         "-v", "--verbose", action="count", default=0,
-        help="increase output verbosity (up to 3 levels)*")
-    parser.add_argument("-z", "--zero", action="store_true", help="include zero-length files*")
-    parser.add_argument("-i", "--hidden", action="store_true", help="include hidden files/folders*")
+        help="increase output verbosity (up to 3 levels)")
+    parser.add_argument("-z", "--zero", action="store_true", help="include zero-length files")
+    parser.add_argument("-i", "--hidden", action="store_true", help="include hidden files/folders")
     parser.add_argument("-s", "--show", action="store_true", help="show intended actions without doing anything*")
     
     behave = parser.add_argument_group("behaviour")
-    behave.add_argument("--find", action="store_true", help="report duplicates only (default)*")
+    behave.add_argument("--find", action="store_true", help="report duplicates only (default)")
     behave.add_argument("--move", action="store_true", help="move duplicates into separate folder for review*")
     behave.add_argument("--delete", action="store_true", help="delete duplicates*")
     

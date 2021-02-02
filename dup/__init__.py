@@ -41,3 +41,10 @@ def output(string: str, level: int = Verbosity.Required):
     """print string if specified level allowed by VERBOSITY settings"""
     if level <= config.VERBOSITY_LEVEL:
         print("  "*level + string)
+
+def plural(num: int, noun: str, nouns: str = "") -> str:
+    if nouns == "":
+        nouns = noun + "s"
+    if num == 1:
+        nouns = noun
+    return f"{num} {nouns}"
