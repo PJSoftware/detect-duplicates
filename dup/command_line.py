@@ -19,7 +19,7 @@ def main():
     parser.add_argument("-s", "--show", action="store_true", help="show intended actions without doing anything*")
     
     behave = parser.add_argument_group("behaviour")
-    behave.add_argument("--find", action="store_true", help="report duplicates only (default)*")
+    behave.add_argument("--find", action="store_true", help="report duplicates only (default)")
     behave.add_argument("--move", action="store_true", help="move duplicates into separate folder for review*")
     behave.add_argument("--delete", action="store_true", help="delete duplicates*")
     
