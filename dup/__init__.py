@@ -52,5 +52,5 @@ def plural(num: int, noun: str, nouns: str = "") -> str:
 
 def foldername(fn: str) -> str:
     if platform.system() == "Windows":
-        return fn.encode("cp1252").decode("utf-8")
+        return fn.encode("utf-8").decode("cp1252","backslashreplace")
     return fn
