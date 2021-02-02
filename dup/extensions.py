@@ -1,5 +1,6 @@
 from . import recurse_into_folder, output
 from .config import Verbosity
+from . import config
 
 import os
 import tempfile
@@ -7,8 +8,18 @@ import tempfile
 def list():
     output("List extensions", Verbosity.Required)
     extensions = scan_extensions()
+    count = 0
+    if config.ALL_EXTENSIONS:
+        output("All extensions found:", Verbosity.Required)
+    else:
+        output("Top Ten extensions found: (use --all for complete list)", Verbosity.Required)
+
     for ext in sorted(extensions, key=extensions.get, reverse=True):
-        output(f"> {ext}: {extensions[ext]} files found", Verbosity.Required)
+        if config.ALL_EXTENSIONS or count <= 10:
+            output(f"> {ext}:\t{extensions[ext]} files found", Verbosity.Required)
+            count += 1
+        else:
+            break
 
 def scan_extensions() -> dict:
     by_size = recurse_into_folder('.')
