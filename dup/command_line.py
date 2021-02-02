@@ -24,8 +24,9 @@ def main():
     behave.add_argument("--delete", action="store_true", help="delete duplicates*")
     
     other = parser.add_argument_group("other")
-    other.add_argument("--list-ext", action="store_true", help="list unique extensions in folder tree*")
+    other.add_argument("--list-ext", action="store_true", help="list unique extensions in folder tree")
     other.add_argument("--del-ext", help="delete files with specified extensions (eg, --del-ext ABC,XXX)*")
+    other.add_argument("-a", "--all", action="store_true", help="list all extensions (default is top 10 only)")
 
     arg = parser.parse_args()
 
@@ -33,6 +34,7 @@ def main():
     config.VERBOSITY_LEVEL = min(arg.verbose, Verbosity.Waffle)
     config.INCLUDE_HIDDEN = arg.hidden
     config.IGNORE_ZERO_LENGTH = not arg.zero
+    config.ALL_EXTENSIONS = arg.all
 
     if arg.show:
         config.SHOW_DONT_ACT = True
@@ -46,10 +48,6 @@ def main():
     
     if arg.hidden:
         output("* --hidden specified; hidden files and folders will be included", Verbosity.Detailed)
-
-    if arg.find:
-        arg.del_ext = None
-        arg.list_ext = False
     
     # process extension commands first
     if arg.del_ext:
@@ -57,7 +55,7 @@ def main():
     elif arg.list_ext:
         extensions.list()
 
-    if arg.delete:
+    elif arg.delete:
         duplicates.delete()
     elif arg.move:
         duplicates.move()
