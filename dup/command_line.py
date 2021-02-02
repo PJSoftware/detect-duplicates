@@ -15,18 +15,20 @@ def main():
         "-v", "--verbose", action="count", default=0,
         help="increase output verbosity (up to 3 levels)")
     parser.add_argument("-z", "--zero", action="store_true", help="include zero-length files")
-    parser.add_argument("-i", "--hidden", action="store_true", help="include hidden files/folders")
-    parser.add_argument("-s", "--show", action="store_true", help="show intended actions without doing anything*")
+    parser.add_argument("-x", "--hidden", action="store_true", help="include hidden files/folders")
+    parser.add_argument("-r", "--rehearse", action="store_true", help="show intended actions without doing anything*")
     
     behave = parser.add_argument_group("behaviour")
     behave.add_argument("--find", action="store_true", help="report duplicates only (default)")
     behave.add_argument("--move", action="store_true", help="move duplicates into separate folder for review*")
     behave.add_argument("--delete", action="store_true", help="delete duplicates*")
     
-    other = parser.add_argument_group("other")
+    other = parser.add_argument_group("extensions")
     other.add_argument("--list-ext", action="store_true", help="list unique extensions in folder tree")
-    other.add_argument("--del-ext", help="delete files with specified extensions (eg, --del-ext ABC,XXX)*")
     other.add_argument("-a", "--all", action="store_true", help="list all extensions (default is top 10 only)")
+    other.add_argument("--show-ext", help="list files with specified extension (eg, --show-ext JPG)")
+    other.add_argument("--del-ext", help="delete files with specified extension (eg, --del-ext MD)*")
+    other.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when specifying extension")
 
     arg = parser.parse_args()
 
@@ -35,8 +37,9 @@ def main():
     config.INCLUDE_HIDDEN = arg.hidden
     config.IGNORE_ZERO_LENGTH = not arg.zero
     config.ALL_EXTENSIONS = arg.all
+    config.IGNORE_CASE = arg.ignore_case
 
-    if arg.show:
+    if arg.rehearse:
         config.SHOW_DONT_ACT = True
         config.VERBOSITY_LEVEL = max(config.VERBOSITY_LEVEL, Verbosity.Detailed)
         output("* --show specified; no action will be taken (implies -vv)", Verbosity.Detailed)
@@ -52,6 +55,8 @@ def main():
     # process extension commands first
     if arg.del_ext:
         extensions.delete(arg.del_ext)
+    elif arg.show_ext:
+        extensions.show(arg.show_ext)
     elif arg.list_ext:
         extensions.list()
 
