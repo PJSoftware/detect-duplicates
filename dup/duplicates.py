@@ -70,9 +70,21 @@ def report_duplicates(by_hash: dict):
 
             if count > 1:
                 if not count in by_count:
-                    by_count[count] = 0
-                by_count[count] += 1
+                    by_count[count] = {}
+                if not size in by_count[count]:
+                    by_count[count][size] = 0
+                by_count[count][size] += 1
     for count in (sorted(by_count.keys(), reverse=True)):
-        num = by_count[count]
+        num = 0
+        min_size = -1
+        max_size = -1
+        for size in (sorted(by_count[count])):
+            num += by_count[count][size]
+            if min_size == -1:
+                min_size = size
+            max_size = max(max_size, size)
         sets = plural(num, "set")
-        output(f"> {sets} of files with {count} duplicates", Verbosity.Required)
+        size_range = f"{min_size}"
+        if max_size > min_size:
+            size_range += f"..{max_size}"
+        output(f"> {sets} of files with {count} duplicates ({size_range})", Verbosity.Required)
