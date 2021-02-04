@@ -59,6 +59,15 @@ def hash_file(file_path: str) -> str:
 
 def report_duplicates(by_hash: dict):
     dup = plural(global_var.duplicates_found, "duplicate file")
+    acc_range = f"{config.MIN_SIZE}"
+    if config.MAX_SIZE < config.MIN_SIZE:
+        acc_range += " and above"
+    elif config.MAX_SIZE == config.MIN_SIZE:
+        acc_range += " exactly"
+    else:
+        acc_range += f" to {config.MAX_SIZE}"
+    num_files = plural(global_var.files_rejected, "file")
+    output(f"> {num_files} skipped, size outside accepted range ({acc_range})", Verbosity.Required)
     output(f"> {dup} found", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
         by_count = {}
@@ -86,9 +95,9 @@ def report_duplicates(by_hash: dict):
                     min_size = size
                 max_size = max(max_size, size)
             sets = plural(num, "set")
-            size_range = f"{min_size}"
+            size_range = f"{min_size} bytes"
             if max_size > min_size:
-                size_range += f"..{max_size}"
+                size_range += f" to {max_size} bytes"
             output(f"> {sets} of files with {count} duplicates ({size_range})", Verbosity.Required)
     else:
         for size in (sorted(by_hash.keys())):

@@ -19,7 +19,7 @@ def recurse_into_folder(dir: str, by_size: dict = {}) -> dict:
     for entry in os.scandir(dir):
         if entry.is_file():
             size = os.path.getsize(entry.path)
-            if size > 0 or not config.IGNORE_ZERO_LENGTH:
+            if config.valid_size(size):
                 output(f"  {foldername(entry.path)}: {size} bytes", Verbosity.Waffle)
                 if size not in by_size:
                     by_size[size] = []
@@ -27,6 +27,9 @@ def recurse_into_folder(dir: str, by_size: dict = {}) -> dict:
                     global_var.size_matched += 1
                 by_size[size].append(entry.path)
                 global_var.files_found += 1
+            else:
+                output(f"  {foldername(entry.path)}: {size} bytes discarded for size", Verbosity.Waffle)
+                global_var.files_rejected += 1
         elif entry.is_dir():
             if entry.name[:1] == '.' and not config.INCLUDE_HIDDEN:
                 output(f"Skipping hidden folder {foldername(entry.path)}", Verbosity.Detailed)
