@@ -10,7 +10,7 @@ def main():
     # dup.usage()
     parser = argparse.ArgumentParser(
         description=f"dup v{version()}: find duplicate files within the current folder", 
-        epilog="* not yet implemented")
+        epilog="* not yet implemented; size can be expressed in bytes, or K, M, or G (eg, 10M)")
 
     p_act = parser.add_argument_group("actions")
     p_act.add_argument("--find", action="store_true", help="report duplicates only (default)")
@@ -25,9 +25,12 @@ def main():
     p_ext.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when specifying extension")
 
     p_opt = parser.add_argument_group("options")
-    p_opt.add_argument("-z", "--zero", action="store_true", help="include zero-length files")
     p_opt.add_argument("-x", "--hidden", action="store_true", help="include hidden files/folders")
     p_opt.add_argument("-r", "--rehearse", action="store_true", help="show intended actions without doing anything*")
+
+    p_flt = parser.add_argument_group("filters")
+    p_flt.add_argument("--min-size", help="min file size to consider (eg, --show-ext 4M) (default 1K)")
+    p_flt.add_argument("--max-size", help="max file size to consider (eg, --show-ext 40M)")
 
     p_stat = parser.add_argument_group("status")
     p_stat.add_argument("-p", "--progress", action="store_true", help="display progress bar (default)*")
@@ -41,7 +44,6 @@ def main():
     config.PROGRESS_BAR = True
     config.VERBOSITY_LEVEL = min(arg.verbose, Verbosity.Waffle)
     config.INCLUDE_HIDDEN = arg.hidden
-    config.IGNORE_ZERO_LENGTH = not arg.zero
     config.ALL_EXTENSIONS = arg.all
     config.IGNORE_CASE = arg.ignore_case
 
@@ -55,9 +57,26 @@ def main():
         output(f"* verbosity level set to {config.VERBOSITY_LEVEL}", Verbosity.Detailed)
         output("* progress bar has been disabled", Verbosity.Detailed)
     
-    if arg.zero:
-        output("* --zero specified; zero-length files will be included in comparison", Verbosity.Required)
-    
+    if arg.min_size:
+        config.MIN_SIZE = config.calc_file_size(arg.min_size)
+        if config.MIN_SIZE == -1:
+            config.MIN_SIZE = config.calc_file_size("1K")
+            output(f"* --min-size {arg.min_size} not recognised: set to default value {config.MIN_SIZE}", Verbosity.Required)
+        else:
+            output(f"* --min-size set to {config.MIN_SIZE} bytes", Verbosity.Detailed)
+    else:
+        config.MIN_SIZE = config.calc_file_size("1K")
+
+    if arg.max_size:
+        config.MAX_SIZE = config.calc_file_size(arg.max_size)
+        if config.MAX_SIZE == -1:
+            output(f"* --max-size {arg.max_size} not recognised: set to default of no limit", Verbosity.Required)
+        else:
+            if config.MAX_SIZE < config.MIN_SIZE:
+                output(f"* --max-size {config.MAX_SIZE} smaller than --min_size; setting to {config.MIN_SIZE}", Verbosity.Required)
+                config.MAX_SIZE = config.MIN_SIZE
+            output(f"* --max-size set to {config.MIN_SIZE} bytes", Verbosity.Detailed)
+
     if arg.hidden:
         output("* --hidden specified; hidden files and folders will be included", Verbosity.Required)
     
