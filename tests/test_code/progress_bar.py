@@ -1,10 +1,15 @@
-from dup import progress
+import sys, os
 import time
 
-for i in progress.bar(range(15), "Computing: ", 40):
-    time.sleep(0.1) # any calculation you need
+# The linter cannot interpret this, se we need to disable following error
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-# pb = progress.Bar("Computing", 40, 1000)
-# for i in range(1000):
-#     pb.update(i)
-#     time.sleep(0.1) # any calculation you need
+# pylint: disable=no-name-in-module
+from dup.progress import Bar
+# pylint: enable=no-name-in-module
+
+length = 100
+pb = Bar("Computing", 40, length)
+for i in range(length+1):
+    pb.update(i, f"Step {i}")
+    time.sleep(0.1) # any calculation you need
