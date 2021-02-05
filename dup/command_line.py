@@ -25,7 +25,8 @@ def main():
     filter = parser.add_argument_group("filter")
     filter.add_argument("--min-size", help="min file size to consider (eg, --show-ext 4M) (default 1K)")
     filter.add_argument("--max-size", help="max file size to consider (eg, --show-ext 40M)")
-    
+    filter.add_argument("--category", help="file category to compare (eg, movies, images, docs)*")
+
     other = parser.add_argument_group("extensions")
     other.add_argument("--list-ext", action="store_true", help="list unique extensions in folder tree")
     other.add_argument("-a", "--all", action="store_true", help="list all extensions (default is top 10 only)")
