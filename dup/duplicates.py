@@ -83,7 +83,7 @@ def report_duplicates(by_hash: dict):
     else:
         acc_range += f" to {config.MAX_SIZE}"
     num_files = plural(global_var.files_rejected, "file")
-    output(f"> {num_files} skipped, size outside accepted range ({acc_range})", Verbosity.Required)
+    output(f"> {num_files} skipped for size ({acc_range}) or category", Verbosity.Required)
     output(f"> {dup} found", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
         by_count = {}

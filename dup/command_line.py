@@ -31,6 +31,7 @@ def main():
     p_flt = parser.add_argument_group("filters")
     p_flt.add_argument("--min-size", help="min file size to consider (eg, --show-ext 4M) (default 1K)")
     p_flt.add_argument("--max-size", help="max file size to consider (eg, --show-ext 40M)")
+    p_flt.add_argument("--category", help="file category to compare (eg, movies, images, docs)*")
 
     p_stat = parser.add_argument_group("status")
     p_stat.add_argument("-p", "--progress", action="store_true", help="display progress bar (default)*")
@@ -47,6 +48,16 @@ def main():
     config.ALL_EXTENSIONS = arg.all
     config.IGNORE_CASE = arg.ignore_case
 
+    if arg.category:
+        if arg.category == "movies":
+            config.FILTER_EXTENSIONS = ['mp4','m4v','mov']
+        elif arg.category == "images":
+            config.FILTER_EXTENSIONS = ['jpg','jpeg','png','bmp','tif','gif']
+        elif arg.category == "docs":
+            config.FILTER_EXTENSIONS = ['doc','docx','docm','xls','xlsx','xlsm']
+        else:
+            print(f"Unknown category '{arg.category}'; examining all files")
+    
     if arg.rehearse:
         config.SHOW_DONT_ACT = True
         config.VERBOSITY_LEVEL = max(config.VERBOSITY_LEVEL, Verbosity.Detailed)
