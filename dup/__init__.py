@@ -15,10 +15,7 @@ def version() -> str:
 
 def recurse_into_folder(dir: str, by_size: dict = {}, pb: progress.Bar = None) -> dict:
     """find all files under current folder and group by size"""
-    if pb:
-        pb.update(suffix="Scanning folder tree")
-    else:
-        output(f"Searching in {foldername(dir)}", Verbosity.Information)
+    output(f"Searching in {foldername(dir)}", Verbosity.Information)
     for entry in os.scandir(dir):
         if entry.is_file():
             size = os.path.getsize(entry.path)
@@ -26,14 +23,16 @@ def recurse_into_folder(dir: str, by_size: dict = {}, pb: progress.Bar = None) -
                 output(f"  {foldername(entry.path)}: {size} bytes", Verbosity.Waffle)
                 if size not in by_size:
                     by_size[size] = []
-                else:
-                    global_var.size_matched += 1
                 by_size[size].append(entry.path)
                 if len(by_size[size]) > 2:
                     global_var.total_size_of_files += size
+                    global_var.size_matched += 1
                 elif len(by_size[size]) == 2:
                     global_var.total_size_of_files += size * 2
+                    global_var.size_matched += 2
                 global_var.files_found += 1
+                if pb:
+                    pb.update(suffix=f"F = {global_var.files_found} | D = {global_var.size_matched}")
             else:
                 output(f"  {foldername(entry.path)}: {size} bytes discarded for size", Verbosity.Waffle)
                 global_var.files_rejected += 1

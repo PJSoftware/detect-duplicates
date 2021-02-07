@@ -19,7 +19,8 @@ def delete():
 def find_duplicates() -> dict:
     output("Scanning current folder tree", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar("Scanning", 50, 0)
+        print("    F=found | D=possible duplicates")
+        status = progress.Bar("Scanning", 40, 0)
     else:
         status = None
     global_var.files_found = 0
@@ -35,11 +36,10 @@ def find_duplicates() -> dict:
 def calculate_hashes(by_size: dict) -> dict:
     output("Calculating hashes of same-sized files", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar(" Hashing", 50, global_var.total_size_of_files)
+        status = progress.Bar(" Hashing", 40, global_var.total_size_of_files)
     else:
         status = None
     global_var.duplicates_found = 0
-    global_var.size_matched = 0
     by_hash = {}
     for size in sorted(by_size.keys()):
         count = len(by_size[size])
@@ -49,7 +49,7 @@ def calculate_hashes(by_size: dict) -> dict:
                 file_hash = hash_file(file)
                 global_var.total_hashed_size += size
                 if config.VERBOSITY_LEVEL == Verbosity.Required:
-                    status.update(global_var.total_hashed_size)
+                    status.update(global_var.total_hashed_size, f"{global_var.files_hashed} of {global_var.size_matched}")
                 if not size in by_hash:
                     by_hash[size] = {}
                 if not file_hash in by_hash[size]:
@@ -70,6 +70,7 @@ def hash_file(file_path: str) -> str:
             if not data:
                 break
             sha1.update(data)
+    global_var.files_hashed += 1
     return sha1.hexdigest()
 
 def report_duplicates(by_hash: dict):
