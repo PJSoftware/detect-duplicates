@@ -15,6 +15,7 @@ IGNORE_CASE = False
 PROGRESS_BAR = True
 MIN_SIZE = -1
 MAX_SIZE = -1
+FILTER_EXTENSIONS = []
 
 ARCHIVE_FOLDER = '_dup_archive_'
 
@@ -37,3 +38,10 @@ def valid_size(size:int) -> bool:
     if MAX_SIZE >= MIN_SIZE and size > MAX_SIZE:
         return False
     return True
+
+def valid_extension(ext:str) -> bool:
+    if len(FILTER_EXTENSIONS) == 0:
+        return True
+    if ext in FILTER_EXTENSIONS:
+        return True
+    return False

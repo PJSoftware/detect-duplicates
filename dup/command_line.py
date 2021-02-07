@@ -48,6 +48,16 @@ def main():
     config.ALL_EXTENSIONS = arg.all
     config.IGNORE_CASE = arg.ignore_case
 
+    if arg.category:
+        if arg.category == "movies":
+            config.FILTER_EXTENSIONS = ['mp4','m4v','mov']
+        elif arg.category == "images":
+            config.FILTER_EXTENSIONS = ['jpg','jpeg','png','bmp','tif','gif']
+        elif arg.category == "docs":
+            config.FILTER_EXTENSIONS = ['doc','docx','docm','xls','xlsx','xlsm']
+        else:
+            print(f"Unknown category '{arg.category}'; examining all files")
+    
     if arg.rehearse:
         config.SHOW_DONT_ACT = True
         config.VERBOSITY_LEVEL = max(config.VERBOSITY_LEVEL, Verbosity.Detailed)
