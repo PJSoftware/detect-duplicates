@@ -4,7 +4,7 @@ import platform
 
 from .config import Verbosity
 from . import config
-from . import global_var
+from . import global_var, progress
 
 def version() -> str:
     """returns version information read from VERSION file"""
@@ -13,9 +13,12 @@ def version() -> str:
         version_data = f.read().splitlines()
         return version_data[0]
 
-def recurse_into_folder(dir: str, by_size: dict = {}) -> dict:
+def recurse_into_folder(dir: str, by_size: dict = {}, pb: progress.Bar = None) -> dict:
     """find all files under current folder and group by size"""
-    output(f"Searching in {foldername(dir)}", Verbosity.Information)
+    if pb:
+        pb.update(suffix="Scanning folder tree")
+    else:
+        output(f"Searching in {foldername(dir)}", Verbosity.Information)
     for entry in os.scandir(dir):
         if entry.is_file():
             size = os.path.getsize(entry.path)
@@ -26,6 +29,10 @@ def recurse_into_folder(dir: str, by_size: dict = {}) -> dict:
                 else:
                     global_var.size_matched += 1
                 by_size[size].append(entry.path)
+                if len(by_size[size]) > 2:
+                    global_var.total_size_of_files += size
+                elif len(by_size[size]) == 2:
+                    global_var.total_size_of_files += size * 2
                 global_var.files_found += 1
             else:
                 output(f"  {foldername(entry.path)}: {size} bytes discarded for size", Verbosity.Waffle)
@@ -38,7 +45,7 @@ def recurse_into_folder(dir: str, by_size: dict = {}) -> dict:
             elif entry.name == config.ARCHIVE_FOLDER:
                 output(f"Skipping archive folder {foldername(entry.path)}", Verbosity.Detailed)
             else:
-                recurse_into_folder(entry.path, by_size)
+                recurse_into_folder(entry.path, by_size, pb)
     return by_size
 
 def output(string: str, level: int = Verbosity.Required):

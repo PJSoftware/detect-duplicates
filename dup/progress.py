@@ -45,3 +45,6 @@ class Bar:
             self.status = status
         bar = self.__repr__()
         print(f"\r{bar}", end="")
+    
+    def close(self):
+        print("\n")
