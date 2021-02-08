@@ -175,11 +175,20 @@ def copy_to(folder: str, file_path: str):
     if config.SHOW_DONT_ACT:
         return
     fn = ntpath.basename(file_path)
-    shutil.copy2(file_path,f"{folder}/0-{fn}")
+    tfn = f"0-{fn}"
+    archive_log(folder, file_path, tfn, 'copied')
+    shutil.copy2(file_path,f"{folder}/{tfn}")
             
 def move_to(folder: str, file_path: str, num: int):
     output(f"#{num}: Moving {file_path} to {folder}", Verbosity.Detailed)
     if config.SHOW_DONT_ACT:
         return
     fn = ntpath.basename(file_path)
-    shutil.move(file_path,f"{folder}/{num}-{fn}")
+    tfn = f"{num}-{fn}"
+    archive_log(folder, file_path, tfn, 'moved')
+    shutil.move(file_path,f"{folder}/{tfn}")
+
+def archive_log(folder: str, source: str, target: str, action: str):
+    log_file = f"{folder}/archive.log"
+    with open(log_file, 'a') as f:
+        f.write(f"{target} {action} from {source}\n")
