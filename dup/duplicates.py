@@ -10,8 +10,8 @@ def find():
     by_hash = find_duplicates()
     report_duplicates(by_hash)
 
-def move():
-    print("Move duplicates")
+def archive():
+    print("Archive duplicates")
 
 def delete():
     print("Delete duplicates")

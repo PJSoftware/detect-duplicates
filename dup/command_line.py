@@ -14,7 +14,7 @@ def main():
 
     p_act = parser.add_argument_group("actions")
     p_act.add_argument("--find", action="store_true", help="report duplicates only (default)")
-    p_act.add_argument("--move", action="store_true", help="move duplicates into separate folder for review*")
+    p_act.add_argument("--archive", action="store_true", help=f"archive duplicates in '{config.ARCHIVE_FOLDER}' folder for review*")
     p_act.add_argument("--delete", action="store_true", help="delete duplicates*")
 
     p_ext = parser.add_argument_group("extensions")
@@ -84,8 +84,8 @@ def main():
             output(f"* --max-size {arg.max_size} not recognised: set to default of no limit", Verbosity.Required)
         else:
             if config.MAX_SIZE < config.MIN_SIZE:
-                output(f"* --max-size {config.MAX_SIZE} smaller than --min_size; setting to {config.MIN_SIZE}", Verbosity.Required)
-                config.MAX_SIZE = config.MIN_SIZE
+                output(f"* --max-size {config.MAX_SIZE} smaller than --min_size {config.MIN_SIZE}; swapping", Verbosity.Required)
+                config.MAX_SIZE, config.MIN_SIZE = config.MIN_SIZE, config.MAX_SIZE
             output(f"* --max-size set to {config.MIN_SIZE} bytes", Verbosity.Detailed)
 
     if arg.hidden:
@@ -101,7 +101,7 @@ def main():
 
     elif arg.delete:
         duplicates.delete()
-    elif arg.move:
-        duplicates.move()
+    elif arg.archive:
+        duplicates.archive()
     else: # arg.find is the default
         duplicates.find()
