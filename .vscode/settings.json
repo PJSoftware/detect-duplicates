@@ -3,6 +3,7 @@
         "act",
         "dont",
         "epilog",
+        "ignorecase",
         "mult",
         "scandir",
         "show"

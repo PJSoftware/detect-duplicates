@@ -1,5 +1,6 @@
 import hashlib
 import os
+import re
 
 from . import recurse_into_folder, output, plural, foldername
 from .config import Verbosity
@@ -11,7 +12,9 @@ def find():
     report_duplicates(by_hash)
 
 def archive():
-    print("Archive duplicates")
+    output("Archive duplicates", Verbosity.Required)
+    by_hash = find_duplicates()
+    archive_duplicates(by_hash)
 
 def delete():
     print("Delete duplicates")
@@ -20,7 +23,7 @@ def find_duplicates() -> dict:
     output("Scanning current folder tree", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
         print("    F=found | D=possible duplicates")
-        status = progress.Bar("Scanning", 40, 0)
+        status = progress.Bar(" Scanning", 40, 0)
     else:
         status = None
     global_var.files_found = 0
@@ -36,7 +39,7 @@ def find_duplicates() -> dict:
 def calculate_hashes(by_size: dict) -> dict:
     output("Calculating hashes of same-sized files", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar(" Hashing", 40, global_var.total_size_of_files)
+        status = progress.Bar("  Hashing", 40, global_var.total_size_of_files)
     else:
         status = None
     global_var.duplicates_found = 0
@@ -123,3 +126,43 @@ def report_duplicates(by_hash: dict):
                     output(f"> {size}-byte files with {count} duplicates", Verbosity.Required)
                     for file in (sorted(by_hash[size][hash])):
                         output(f"> {file}", Verbosity.Information)
+
+def archive_duplicates(by_hash: dict):
+    output("Archiving duplicates", Verbosity.Required)
+    if config.VERBOSITY_LEVEL == Verbosity.Required:
+        status = progress.Bar("Archiving", 40, global_var.duplicates_found)
+    else:
+        status = None
+
+    archived = 0
+    for size in by_hash:
+        for hash in by_hash[size]:
+            index = determine_preferred_master(by_hash[size][hash])
+            count = len(by_hash[size][hash])
+            archive_folder = f"{config.ARCHIVE_FOLDER}/{hash}-{size}-{count}"
+            os.makedirs(archive_folder, exist_ok=True)
+
+            copy_to(archive_folder, by_hash[size][hash][index])
+            archived += 1
+            if status:
+                status.update(archived)
+            j = 1
+            for i in range(count):
+                if i != index:
+                    move_to(archive_folder, by_hash[size][hash][i], j)
+                    j += 1
+                    archived += 1
+                    if status:
+                        status.update(archived)
+
+def determine_preferred_master(files: list) -> int:
+    for i, file_path in enumerate(files):
+        if not re.search("unsorted|copy", file_path, re.IGNORECASE):
+            return i
+    return 0
+
+def copy_to(folder: str, file_path: str):
+    output(f"Copying {file_path} to {folder}", Verbosity.Detailed)
+            
+def move_to(folder: str, file_path: str, num: int):
+    output(f"#{num}: Moving {file_path} to {folder}", Verbosity.Detailed)
