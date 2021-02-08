@@ -50,14 +50,39 @@ def main():
 
     if arg.category:
         if arg.category == "movies":
-            config.FILTER_EXTENSIONS = ['mp4','m4v','mov']
+            config.FILTER_EXTENSIONS = ['mp4','m4v','mov','mts','avi']
         elif arg.category == "images":
-            config.FILTER_EXTENSIONS = ['jpg','jpeg','png','bmp','tif','gif']
+            config.FILTER_EXTENSIONS = ['jpg','jpeg','png','bmp','tif','gif','heic','cr2','tiff','xcf']
         elif arg.category == "docs":
-            config.FILTER_EXTENSIONS = ['doc','docx','docm','xls','xlsx','xlsm']
+            config.FILTER_EXTENSIONS = ['doc','docx','docm','xls','xlsx','xlsm','mdb','accdb']
         else:
             print(f"Unknown category '{arg.category}'; examining all files")
     
+# > jpg:  75131 files found
+# > mov:  4941 files found
+# > png:  2005 files found
+# > heic: 1761 files found
+# > mp4:  786 files found
+# > cr2:  554 files found
+# > thm:  213 files found
+# > m4v:  133 files found
+# > mts:  54 files found
+# > db:   51 files found
+# > aae:  50 files found
+# > jpeg: 32 files found
+# > pfl:  22 files found
+# > tiff: 12 files found
+# > pdf:  12 files found
+# > gif:  9 files found
+# > avi:  7 files found
+# > ico:  2 files found
+# > log:  2 files found
+# > sh:   1 files found
+# > html: 1 files found
+# > bat:  1 files found
+# > xcf:  1 files found
+# > ctg:  1 files found
+
     if arg.rehearse:
         config.SHOW_DONT_ACT = True
         config.VERBOSITY_LEVEL = max(config.VERBOSITY_LEVEL, Verbosity.Detailed)
