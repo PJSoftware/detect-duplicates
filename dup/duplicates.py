@@ -53,7 +53,7 @@ def calculate_hashes(by_size: dict) -> dict:
             for file in by_size[size]:
                 file_hash = hash_file(file)
                 global_var.total_hashed_size += size
-                if config.VERBOSITY_LEVEL == Verbosity.Required:
+                if status:
                     status.update(global_var.total_hashed_size, f"{global_var.files_hashed} of {global_var.size_matched}")
                 if not size in by_hash:
                     by_hash[size] = {}
