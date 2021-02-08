@@ -191,4 +191,4 @@ def move_to(folder: str, file_path: str, num: int):
 def archive_log(folder: str, source: str, target: str, action: str):
     log_file = f"{folder}/archive.log"
     with open(log_file, 'a') as f:
-        f.write(f"{target} {action} from {source}\n")
+        f.write(f"[{target}] {action} from [{source}]\n")
