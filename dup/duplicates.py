@@ -111,15 +111,15 @@ def report_duplicates(by_hash: dict):
                     by_count[count][size] = by_hash[size][hash]
 
         for count in (sorted(by_count.keys(), reverse=True)):
-            num = 0
+            num_sets = 0
             min_size = -1
             max_size = -1
             for size in (sorted(by_count[count])):
-                num += len(by_count[count][size])
+                num_sets += 1
                 if min_size == -1:
                     min_size = size
                 max_size = max(max_size, size)
-            sets = plural(num, "set")
+            sets = plural(num_sets, "set")
             size_range = f"{min_size} bytes"
             if max_size > min_size:
                 size_range += f" to {max_size} bytes"
