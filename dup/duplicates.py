@@ -115,7 +115,7 @@ def report_duplicates(by_hash: dict):
             min_size = -1
             max_size = -1
             for size in (sorted(by_count[count])):
-                num += len(by_count[count][size])
+                num += 1
                 if min_size == -1:
                     min_size = size
                 max_size = max(max_size, size)
