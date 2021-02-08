@@ -50,11 +50,11 @@ def main():
 
     if arg.category:
         if arg.category == "movies":
-            config.FILTER_EXTENSIONS = ['mp4','m4v','mov']
+            config.FILTER_EXTENSIONS = ['mp4','m4v','mov','mts','avi']
         elif arg.category == "images":
-            config.FILTER_EXTENSIONS = ['jpg','jpeg','png','bmp','tif','gif']
+            config.FILTER_EXTENSIONS = ['jpg','jpeg','png','bmp','tif','gif','heic','cr2','tiff','xcf']
         elif arg.category == "docs":
-            config.FILTER_EXTENSIONS = ['doc','docx','docm','xls','xlsx','xlsm']
+            config.FILTER_EXTENSIONS = ['doc','docx','docm','xls','xlsx','xlsm','mdb','accdb']
         else:
             print(f"Unknown category '{arg.category}'; examining all files")
     
