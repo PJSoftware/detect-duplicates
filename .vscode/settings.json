@@ -5,6 +5,7 @@
         "epilog",
         "ignorecase",
         "mult",
+        "ntpath",
         "scandir",
         "show"
     ]

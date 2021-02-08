@@ -1,6 +1,8 @@
 import hashlib
+import ntpath
 import os
 import re
+import shutil
 
 from . import recurse_into_folder, output, plural, foldername
 from .config import Verbosity
@@ -57,9 +59,13 @@ def calculate_hashes(by_size: dict) -> dict:
                     by_hash[size] = {}
                 if not file_hash in by_hash[size]:
                     by_hash[size][file_hash] = []
-                else:
-                    global_var.duplicates_found += 1
+
                 by_hash[size][file_hash].append(file)
+                if len(by_hash[size][file_hash]) > 2:
+                    global_var.duplicates_found += 1
+                elif len(by_hash[size][file_hash]) == 2:
+                    global_var.duplicates_found += 2
+
                 output(f"{foldername(file)}: {file_hash}", Verbosity.Waffle)
     if status:
         status.close()
@@ -139,13 +145,13 @@ def archive_duplicates(by_hash: dict):
         for hash in by_hash[size]:
             index = determine_preferred_master(by_hash[size][hash])
             count = len(by_hash[size][hash])
-            archive_folder = f"{config.ARCHIVE_FOLDER}/{hash}-{size}-{count}"
+            archive_folder = f"{config.ARCHIVE_FOLDER}/{size}-{hash[:6]}-{count}"
             os.makedirs(archive_folder, exist_ok=True)
 
             copy_to(archive_folder, by_hash[size][hash][index])
             archived += 1
             if status:
-                status.update(archived)
+                status.update(archived, f"{archived} of {global_var.duplicates_found}")
             j = 1
             for i in range(count):
                 if i != index:
@@ -153,7 +159,10 @@ def archive_duplicates(by_hash: dict):
                     j += 1
                     archived += 1
                     if status:
-                        status.update(archived)
+                        status.update(archived, f"{archived} of {global_var.duplicates_found}")
+    
+    if status:
+        status.close()
 
 def determine_preferred_master(files: list) -> int:
     for i, file_path in enumerate(files):
@@ -163,6 +172,14 @@ def determine_preferred_master(files: list) -> int:
 
 def copy_to(folder: str, file_path: str):
     output(f"Copying {file_path} to {folder}", Verbosity.Detailed)
+    if config.SHOW_DONT_ACT:
+        return
+    fn = ntpath.basename(file_path)
+    shutil.copy2(file_path,f"{folder}/0-{fn}")
             
 def move_to(folder: str, file_path: str, num: int):
     output(f"#{num}: Moving {file_path} to {folder}", Verbosity.Detailed)
+    if config.SHOW_DONT_ACT:
+        return
+    fn = ntpath.basename(file_path)
+    shutil.move(file_path,f"{folder}/{num}-{fn}")
