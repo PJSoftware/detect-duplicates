@@ -1,3 +1,5 @@
+import sys
+
 class Bar:
     """provides progress bar for terminal"""
 
@@ -45,6 +47,7 @@ class Bar:
             self.status = status
         bar = self.__repr__()
         print(f"\r{bar}", end="")
+        sys.stdout.flush()
     
     def close(self):
         print("\n")
