@@ -14,7 +14,7 @@ def main():
 
     p_act = parser.add_argument_group("actions")
     p_act.add_argument("--find", action="store_true", help="report duplicates only (default)")
-    p_act.add_argument("--move", action="store_true", help="move duplicates into separate folder for review*")
+    p_act.add_argument("--archive", action="store_true", help=f"archive duplicates in '{config.ARCHIVE_FOLDER}' folder for review")
     p_act.add_argument("--delete", action="store_true", help="delete duplicates*")
 
     p_ext = parser.add_argument_group("extensions")
@@ -31,13 +31,12 @@ def main():
     p_flt = parser.add_argument_group("filters")
     p_flt.add_argument("--min-size", help="min file size to consider (eg, --show-ext 4M) (default 1K)")
     p_flt.add_argument("--max-size", help="max file size to consider (eg, --show-ext 40M)")
-    p_flt.add_argument("--category", help="file category to compare (eg, movies, images, docs)*")
+    p_flt.add_argument("--category", help="file category to compare (eg, movies, images, docs)")
 
     p_stat = parser.add_argument_group("status")
-    p_stat.add_argument("-p", "--progress", action="store_true", help="display progress bar (default)*")
     p_stat.add_argument(
         "-v", "--verbose", action="count", default=Verbosity.Required, 
-        help="increase output verbosity, up to 3 levels (disables --progress)")
+        help="increase output verbosity, up to 3 levels (disables progress bar)")
 
     arg = parser.parse_args()
 
@@ -84,8 +83,8 @@ def main():
             output(f"* --max-size {arg.max_size} not recognised: set to default of no limit", Verbosity.Required)
         else:
             if config.MAX_SIZE < config.MIN_SIZE:
-                output(f"* --max-size {config.MAX_SIZE} smaller than --min_size; setting to {config.MIN_SIZE}", Verbosity.Required)
-                config.MAX_SIZE = config.MIN_SIZE
+                output(f"* --max-size {config.MAX_SIZE} smaller than --min_size {config.MIN_SIZE}; swapping", Verbosity.Required)
+                config.MAX_SIZE, config.MIN_SIZE = config.MIN_SIZE, config.MAX_SIZE
             output(f"* --max-size set to {config.MIN_SIZE} bytes", Verbosity.Detailed)
 
     if arg.hidden:
@@ -101,7 +100,7 @@ def main():
 
     elif arg.delete:
         duplicates.delete()
-    elif arg.move:
-        duplicates.move()
+    elif arg.archive:
+        duplicates.archive()
     else: # arg.find is the default
         duplicates.find()
