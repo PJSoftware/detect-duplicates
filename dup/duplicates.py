@@ -4,8 +4,9 @@ import os
 import re
 import shutil
 
-from . import recurse_into_folder, output, plural, foldername
+from . import recurse_into_folder, plural
 from .config import Verbosity
+from .output import output, cleanse_output
 from . import global_var, config, progress
 
 def find():
@@ -19,12 +20,11 @@ def archive():
     archive_duplicates(by_hash)
 
 def delete():
-    print("Delete duplicates")
+    output("Delete duplicates", Verbosity.Required)
 
 def find_duplicates() -> dict:
-    output("Scanning current folder tree", Verbosity.Required)
+    output("Scanning current folder tree    F=found | D=possible duplicates", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        print("    F=found | D=possible duplicates")
         status = progress.Bar(" Scanning", 40, 0)
     else:
         status = None
@@ -66,7 +66,7 @@ def calculate_hashes(by_size: dict) -> dict:
                 elif len(by_hash[size][file_hash]) == 2:
                     global_var.duplicates_found += 2
 
-                output(f"{foldername(file)}: {file_hash}", Verbosity.Waffle)
+                output(f"{file}: {file_hash}", Verbosity.Waffle)
     if status:
         status.close()
     return by_hash
@@ -191,4 +191,4 @@ def move_to(folder: str, file_path: str, num: int):
 def archive_log(folder: str, source: str, target: str, action: str):
     log_file = f"{folder}/archive.log"
     with open(log_file, 'a') as f:
-        f.write(f"[{target}] {action} from [{source}]\n")
+        f.write(cleanse_output(f"[{target}] {action} from [{source}]\n"))
