@@ -1,6 +1,6 @@
 from . import recurse_into_folder, output
 from .config import Verbosity
-from . import config, plural, foldername
+from . import config, plural
 
 import os
 import tempfile
@@ -59,7 +59,7 @@ def show(ext: str):
         count = len(by_ext[ext])
         output(f"{plural(count,'file')} with extension '{ext}':", Verbosity.Required)
         for file in by_ext[ext]:
-            output(f"> {foldername(file)}", Verbosity.Required)
+            output(f"> {file}", Verbosity.Required)
     else:
         output(f"extension '{ext}' not found")
 

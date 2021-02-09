@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 
-from . import recurse_into_folder, output, plural, foldername
+from . import recurse_into_folder, output, plural, cleanse_output
 from .config import Verbosity
 from . import global_var, config, progress
 
@@ -66,7 +66,7 @@ def calculate_hashes(by_size: dict) -> dict:
                 elif len(by_hash[size][file_hash]) == 2:
                     global_var.duplicates_found += 2
 
-                output(f"{foldername(file)}: {file_hash}", Verbosity.Waffle)
+                output(f"{file}: {file_hash}", Verbosity.Waffle)
     if status:
         status.close()
     return by_hash
@@ -191,4 +191,4 @@ def move_to(folder: str, file_path: str, num: int):
 def archive_log(folder: str, source: str, target: str, action: str):
     log_file = f"{folder}/archive.log"
     with open(log_file, 'a') as f:
-        f.write(f"[{target}] {action} from [{source}]\n")
+        f.write(cleanse_output(f"[{target}] {action} from [{source}]\n"))
