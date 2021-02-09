@@ -7,7 +7,7 @@ import shutil
 from . import recurse_into_folder, plural
 from .config import Verbosity
 from .output import output, cleanse_output
-from . import global_var, config, progress
+from . import global_var, config, progress, fingerprint
 
 def find():
     output("Find duplicates", Verbosity.Required)
@@ -51,7 +51,7 @@ def calculate_hashes(by_size: dict) -> dict:
         if count > 1:
             output(f"Files of size {size}: {count}", Verbosity.Waffle)
             for file in by_size[size]:
-                file_hash = hash_file(file)
+                file_hash = fingerprint.generate(file, size)
                 global_var.total_hashed_size += size
                 if status:
                     status.update(global_var.total_hashed_size, f"{global_var.files_hashed} of {global_var.size_matched}")
@@ -70,17 +70,6 @@ def calculate_hashes(by_size: dict) -> dict:
     if status:
         status.close()
     return by_hash
-
-def hash_file(file_path: str) -> str:
-    sha1 = hashlib.sha1()
-    with open(file_path, 'rb') as f:
-        while True:
-            data = f.read(sha1.block_size)
-            if not data:
-                break
-            sha1.update(data)
-    global_var.files_hashed += 1
-    return sha1.hexdigest()
 
 def report_duplicates(by_hash: dict):
     dup = plural(global_var.duplicates_found, "duplicate file")
