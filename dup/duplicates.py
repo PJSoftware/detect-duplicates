@@ -19,12 +19,11 @@ def archive():
     archive_duplicates(by_hash)
 
 def delete():
-    print("Delete duplicates")
+    output("Delete duplicates", Verbosity.Required)
 
 def find_duplicates() -> dict:
-    output("Scanning current folder tree", Verbosity.Required)
+    output("Scanning current folder tree    F=found | D=possible duplicates", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        print("    F=found | D=possible duplicates")
         status = progress.Bar(" Scanning", 40, 0)
     else:
         status = None

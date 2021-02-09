@@ -1,5 +1,7 @@
 import sys
 
+from . import cleanse_output
+
 class Bar:
     """provides progress bar for terminal"""
 
@@ -45,9 +47,9 @@ class Bar:
             self.suffix = suffix
         if status > self.status:
             self.status = status
-        bar = self.__repr__()
+        bar = cleanse_output(self.__repr__())
         print(f"\r{bar}", end="")
         sys.stdout.flush()
     
     def close(self):
-        print("\n")
+        print()
