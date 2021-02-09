@@ -134,6 +134,10 @@ def archive_duplicates(by_hash: dict):
         for hash in by_hash[size]:
             index = determine_preferred_master(by_hash[size][hash])
             count = len(by_hash[size][hash])
+            
+            if count < 2:
+                break
+
             archive_folder = f"{config.ARCHIVE_FOLDER}/{size}-{hash[:6]}-{count}"
             os.makedirs(archive_folder, exist_ok=True)
 
