@@ -1,5 +1,6 @@
-from . import recurse_into_folder, output
+from . import recurse_into_folder
 from .config import Verbosity
+from .output import output
 from . import config, plural
 
 import os

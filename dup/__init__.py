@@ -1,8 +1,8 @@
 from enum import IntEnum
 import os
-import platform
 
 from .config import Verbosity
+from .output import output
 from . import config
 from . import global_var, progress
 
@@ -52,11 +52,6 @@ def recurse_into_folder(dir: str, by_size: dict = {}, pb: progress.Bar = None) -
                 recurse_into_folder(entry.path, by_size, pb)
     return by_size
 
-def output(string: str, level: int = Verbosity.Required):
-    """print string if specified level allowed by VERBOSITY settings"""
-    if level <= config.VERBOSITY_LEVEL:
-        print("  "*level + cleanse_output(string))
-
 def plural(num: int, noun: str, nouns: str = "") -> str:
     """pluralise a noun depending on number"""
     if nouns == "":
@@ -64,9 +59,3 @@ def plural(num: int, noun: str, nouns: str = "") -> str:
     if num == 1:
         nouns = noun
     return f"{num} {nouns}"
-
-def cleanse_output(fn: str) -> str:
-    """workaround for dodgy file/folder names which break Python"""
-    if platform.system() == "Windows":
-        return fn.encode("utf-8").decode("cp1252","backslashreplace")
-    return fn

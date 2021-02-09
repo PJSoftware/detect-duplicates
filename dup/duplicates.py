@@ -4,8 +4,9 @@ import os
 import re
 import shutil
 
-from . import recurse_into_folder, output, plural, cleanse_output
+from . import recurse_into_folder, plural
 from .config import Verbosity
+from .output import output, cleanse_output
 from . import global_var, config, progress
 
 def find():

@@ -1,6 +1,6 @@
 import sys
 
-from . import cleanse_output
+from .output import cleanse_output
 
 class Bar:
     """provides progress bar for terminal"""
