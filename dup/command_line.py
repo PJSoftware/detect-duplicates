@@ -55,7 +55,7 @@ def main():
         elif arg.category == "docs":
             config.FILTER_EXTENSIONS = ['doc','docx','docm','xls','xlsx','xlsm','mdb','accdb']
         else:
-            print(f"Unknown category '{arg.category}'; examining all files")
+            output(f"Unknown category '{arg.category}'; examining all files", Verbosity.Required)
     
     if arg.rehearse:
         config.SHOW_DONT_ACT = True
