@@ -1,6 +1,6 @@
-from . import recurse_into_folder
 from .config import Verbosity
 from .output import output
+from .scan import Folder_Data
 from . import config, plural
 
 import os
@@ -23,7 +23,7 @@ def list():
             break
 
 def scan_extensions(find_ext: str = "") -> dict:
-    by_size = recurse_into_folder('.')
+    by_size = Folder_Data().scan('.')
     check_case_sensitivity()
     by_ext = {}
     for size in by_size:

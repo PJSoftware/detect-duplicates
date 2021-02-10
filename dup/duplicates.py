@@ -4,9 +4,10 @@ import os
 import re
 import shutil
 
-from . import recurse_into_folder, plural
+from . import plural
 from .config import Verbosity
 from .output import output, cleanse_output
+from .scan import Folder_Data
 from . import global_var, config, progress, fingerprint
 
 def find():
@@ -24,17 +25,11 @@ def delete():
 
 def find_duplicates() -> dict:
     output("Scanning current folder tree    F=found | D=possible duplicates", Verbosity.Required)
-    if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar(" Scanning", 40, 0)
-    else:
-        status = None
     global_var.files_found = 0
-    by_size = recurse_into_folder('.', pb=status)
+    by_size = Folder_Data().scan('.')
     files = plural(global_var.files_found, "file")
     output(f"> {files} found", Verbosity.Information)
     output(f"> {global_var.size_matched} potential duplicates (same size files)", Verbosity.Information)
-    if status:
-        status.close()
     by_hash = calculate_hashes(by_size)
     return by_hash
 

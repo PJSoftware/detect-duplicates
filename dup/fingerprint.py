@@ -1,7 +1,8 @@
 import hashlib
 import os
 
-from . import global_var, Verbosity
+from . import global_var
+from .config import Verbosity
 from .output import cleanse_output, output
 
 cache_file = ".dup_fingerprint.cache"
