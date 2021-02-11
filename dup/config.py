@@ -15,7 +15,7 @@ IGNORE_CASE = False
 PROGRESS_BAR = True
 MIN_SIZE = -1
 MAX_SIZE = -1
-FILTER_EXTENSIONS = []
+FILTER_EXTENSIONS: list = []
 
 ARCHIVE_FOLDER = '_dup_archive_'
 

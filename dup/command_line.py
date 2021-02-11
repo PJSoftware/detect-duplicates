@@ -3,7 +3,8 @@ import os
 import sys
 
 from .config import Verbosity
-from . import output, version
+from .output import output
+from . import version
 from . import extensions, duplicates, config
 
 def main():

@@ -4,75 +4,33 @@ import os
 import re
 import shutil
 
-from . import recurse_into_folder, plural
+from . import plural
 from .config import Verbosity
 from .output import output, cleanse_output
-from . import global_var, config, progress, fingerprint
+from .scan import Folder_Data
+from . import config, progress, fingerprint
 
 def find():
     output("Find duplicates", Verbosity.Required)
-    by_hash = find_duplicates()
-    report_duplicates(by_hash)
+    files = find_duplicates()
+    report_duplicates(files)
 
 def archive():
     output("Archive duplicates", Verbosity.Required)
-    by_hash = find_duplicates()
-    archive_duplicates(by_hash)
+    files = find_duplicates()
+    archive_duplicates(files)
 
 def delete():
     output("Delete duplicates", Verbosity.Required)
 
-def find_duplicates() -> dict:
+def find_duplicates() -> Folder_Data:
     output("Scanning current folder tree    F=found | D=possible duplicates", Verbosity.Required)
-    if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar(" Scanning", 40, 0)
-    else:
-        status = None
-    global_var.files_found = 0
-    by_size = recurse_into_folder('.', pb=status)
-    files = plural(global_var.files_found, "file")
-    output(f"> {files} found", Verbosity.Information)
-    output(f"> {global_var.size_matched} potential duplicates (same size files)", Verbosity.Information)
-    if status:
-        status.close()
-    by_hash = calculate_hashes(by_size)
-    return by_hash
+    files = Folder_Data()
+    return files
 
-def calculate_hashes(by_size: dict) -> dict:
-    output("Calculating hashes of same-sized files", Verbosity.Required)
-    if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar("  Hashing", 40, global_var.total_size_of_files)
-    else:
-        status = None
-    global_var.duplicates_found = 0
-    by_hash = {}
-    for size in sorted(by_size.keys()):
-        count = len(by_size[size])
-        if count > 1:
-            output(f"Files of size {size}: {count}", Verbosity.Waffle)
-            for file in by_size[size]:
-                file_hash = fingerprint.generate(file, size)
-                global_var.total_hashed_size += size
-                if status:
-                    status.update(global_var.total_hashed_size, f"{global_var.files_hashed} of {global_var.size_matched}")
-                if not size in by_hash:
-                    by_hash[size] = {}
-                if not file_hash in by_hash[size]:
-                    by_hash[size][file_hash] = []
-
-                by_hash[size][file_hash].append(file)
-                if len(by_hash[size][file_hash]) > 2:
-                    global_var.duplicates_found += 1
-                elif len(by_hash[size][file_hash]) == 2:
-                    global_var.duplicates_found += 2
-
-                output(f"{file}: {file_hash}", Verbosity.Waffle)
-    if status:
-        status.close()
-    return by_hash
-
-def report_duplicates(by_hash: dict):
-    dup = plural(global_var.duplicates_found, "duplicate file")
+def report_duplicates(files: Folder_Data):
+    by_hash = files.hashes()
+    dup = plural(files.duplicates_found, "duplicate file")
     acc_range = f"{config.MIN_SIZE}"
     if config.MAX_SIZE < config.MIN_SIZE:
         acc_range += " and above"
@@ -80,11 +38,11 @@ def report_duplicates(by_hash: dict):
         acc_range += " exactly"
     else:
         acc_range += f" to {config.MAX_SIZE}"
-    num_files = plural(global_var.files_rejected, "file")
+    num_files = plural(files.files_rejected_cat + files.files_rejected_size, "file")
     output(f"> {num_files} skipped for size ({acc_range}) or category", Verbosity.Required)
     output(f"> {dup} found", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        by_count = {}
+        by_count: dict = {}
         for size in by_hash:
             output(f"size: {size}", Verbosity.Waffle)
             for hash in by_hash[size]:
@@ -122,12 +80,12 @@ def report_duplicates(by_hash: dict):
                     for file in (sorted(by_hash[size][hash])):
                         output(f"> {file}", Verbosity.Information)
 
-def archive_duplicates(by_hash: dict):
+def archive_duplicates(files: Folder_Data):
+    by_hash = files.hashes()
     output("Archiving duplicates", Verbosity.Required)
+    status: progress.Bar = None
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar("Archiving", 40, global_var.duplicates_found)
-    else:
-        status = None
+        status = progress.Bar("Archiving", 40, files.duplicates_found)
 
     archived = 0
     for size in by_hash:
@@ -144,7 +102,7 @@ def archive_duplicates(by_hash: dict):
             copy_to(archive_folder, by_hash[size][hash][index])
             archived += 1
             if status:
-                status.update(archived, f"{archived} of {global_var.duplicates_found}")
+                status.update(archived, f"{archived} of {files.duplicates_found}")
             j = 1
             for i in range(count):
                 if i != index:
@@ -152,7 +110,7 @@ def archive_duplicates(by_hash: dict):
                     j += 1
                     archived += 1
                     if status:
-                        status.update(archived, f"{archived} of {global_var.duplicates_found}")
+                        status.update(archived, f"{archived} of {files.duplicates_found}")
     
     if status:
         status.close()
