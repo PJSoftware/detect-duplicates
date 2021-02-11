@@ -1,31 +1,50 @@
 import os
+from typing import Optional
 
 from .output import output
-from . import config, progress
+from . import config, progress, fingerprint
 from .config import Verbosity
 
 class File_Data():
-    _name = ''
-    _path = ''
-    _ext = ''
-    _size = 0
+    name = ''
+    path = ''
+    ext = ''
+    size = 0
+    
     _hash = ''
 
     def __init__(self, name: str, path: str, ext: str, size: int):
-        self._name = name
-        self._path = path
-        self._ext = ext
-        self._size = size
+        self.name = name
+        self.path = path
+        self.ext = ext
+        self.size = size
 
+    @property
+    def hash(self) -> str:
+        self._hash = fingerprint.generate(self.path, self.size)
+        return self._hash
+
+    @hash.setter
+    def hash(self, value):
+        raise ValueError("hash must not be set manually; it is calculated internally")
+    
 class Folder_Data():
-    _tree_by_size = {}
-    _total_size = 0
-    _files_found = 0
-    _files_rejected_size = 0
-    _files_rejected_cat = 0
-    _size_matched = 0
+    _tree_by_size: dict = {}
 
-    def scan(self, dir: str) -> dict:
+    total_size = 0
+    files_found = 0
+    files_rejected_size = 0
+    files_rejected_cat = 0
+    size_matched = 0
+
+    def __init__(self):
+        self._scan('.')
+
+    def data(self) -> dict:
+        return self._tree_by_size
+
+    def _scan(self, dir: str):
+        status: Optional[progress.Bar]
         if config.PROGRESS_BAR:
             status = progress.Bar(" Scanning", 40, 0)
         else:
@@ -33,7 +52,6 @@ class Folder_Data():
         self._tree_by_size = self._recurse_into_folder(dir, pb=status)
         if status:
             status.close()
-        return self._tree_by_size
 
     def _recurse_into_folder(self, dir: str, by_size: dict = {}, pb: progress.Bar = None) -> dict:
         """find all files under current folder and group by size"""
@@ -50,20 +68,20 @@ class Folder_Data():
                             by_size[size] = []
                         by_size[size].append(fd)
                         if len(by_size[size]) > 2:
-                            self._total_size += size
-                            self._size_matched += 1
+                            self.total_size += size
+                            self.size_matched += 1
                         elif len(by_size[size]) == 2:
-                            self._total_size += size * 2
-                            self._size_matched += 2
-                        self._files_found += 1
+                            self.total_size += size * 2
+                            self.size_matched += 2
+                        self.files_found += 1
                         if pb:
-                            pb.update(suffix=f"F = {self._files_found} | D = {self._size_matched}")
+                            pb.update(suffix=f"F = {self.files_found} | D = {self.size_matched}")
                     else:
                         output(f"  {entry.path}: {size} bytes discarded for size", Verbosity.Waffle)
-                        self._files_rejected_size += 1
+                        self.files_rejected_size += 1
                 else:
                     output(f"  {entry.path} discarded; not in category", Verbosity.Waffle)
-                    self._files_rejected_cat += 1
+                    self.files_rejected_cat += 1
             elif entry.is_dir():
                 if entry.name[:1] == '.' and not config.INCLUDE_HIDDEN:
                     output(f"Skipping hidden folder {entry.path}", Verbosity.Detailed)
