@@ -8,7 +8,7 @@ from . import plural
 from .config import Verbosity
 from .output import output, cleanse_output
 from .scan import Folder_Data
-from . import global_var, config, progress, fingerprint
+from . import config, progress, fingerprint
 
 def find():
     output("Find duplicates", Verbosity.Required)
@@ -30,7 +30,7 @@ def find_duplicates() -> Folder_Data:
 
 def report_duplicates(files: Folder_Data):
     by_hash = files.hashes()
-    dup = plural(global_var.duplicates_found, "duplicate file")
+    dup = plural(files.duplicates_found, "duplicate file")
     acc_range = f"{config.MIN_SIZE}"
     if config.MAX_SIZE < config.MIN_SIZE:
         acc_range += " and above"
@@ -83,10 +83,9 @@ def report_duplicates(files: Folder_Data):
 def archive_duplicates(files: Folder_Data):
     by_hash = files.hashes()
     output("Archiving duplicates", Verbosity.Required)
+    status: progress.Bar = None
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        status = progress.Bar("Archiving", 40, global_var.duplicates_found)
-    else:
-        status = None
+        status = progress.Bar("Archiving", 40, files.duplicates_found)
 
     archived = 0
     for size in by_hash:
@@ -103,7 +102,7 @@ def archive_duplicates(files: Folder_Data):
             copy_to(archive_folder, by_hash[size][hash][index])
             archived += 1
             if status:
-                status.update(archived, f"{archived} of {global_var.duplicates_found}")
+                status.update(archived, f"{archived} of {files.duplicates_found}")
             j = 1
             for i in range(count):
                 if i != index:
@@ -111,7 +110,7 @@ def archive_duplicates(files: Folder_Data):
                     j += 1
                     archived += 1
                     if status:
-                        status.update(archived, f"{archived} of {global_var.duplicates_found}")
+                        status.update(archived, f"{archived} of {files.duplicates_found}")
     
     if status:
         status.close()

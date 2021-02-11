@@ -1,7 +1,6 @@
 import hashlib
 import os
 
-from . import global_var
 from .config import Verbosity
 from .output import cleanse_output, output
 
@@ -16,7 +15,6 @@ def generate(file_path: str, size: int) -> str:
     fp = find_in_cache(file_path, size)
     if fp != "":
         output(f"{file_path} hash imported: {fp}", Verbosity.Information)
-        global_var.files_hashed += 1
         return fp
 
     sha1 = hashlib.sha1()
@@ -29,7 +27,6 @@ def generate(file_path: str, size: int) -> str:
     fp = sha1.hexdigest()
     output(f"{file_path} hash calculated: {fp}", Verbosity.Information)
     export_to_cache(file_path, size, fp)
-    global_var.files_hashed += 1
     return fp
 
 def import_cache():

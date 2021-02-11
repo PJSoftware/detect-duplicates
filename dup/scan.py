@@ -57,13 +57,12 @@ class Folder_Data():
     def hashes(self) -> dict:
         return self._tree_by_hash
 
-    def _calculate_hashes(self) -> dict:
+    def _calculate_hashes(self):
         by_size = self.data()
         output("Calculating hashes of same-sized files", Verbosity.Required)
+        status: progress.Bar = None
         if config.VERBOSITY_LEVEL == Verbosity.Required:
             status = progress.Bar("  Hashing", 40, self.total_size)
-        else:
-            status = None
         self.duplicates_found = 0
         by_hash: dict = {}
         for size in sorted(by_size.keys()):
@@ -72,6 +71,7 @@ class Folder_Data():
                 output(f"Files of size {size}: {count}", Verbosity.Waffle)
                 for fd in by_size[size]:
                     file_hash = fd.hash
+                    self.files_hashed += 1
                     self.total_hashed_size += size
                     if status:
                         status.update(self.total_hashed_size, f"{self.files_hashed} of {self.size_matched}")
@@ -86,7 +86,7 @@ class Folder_Data():
                     elif len(by_hash[size][file_hash]) == 2:
                         self.duplicates_found += 2
 
-                    output(f"{fd.file_path}: {file_hash}", Verbosity.Waffle)
+                    output(f"{fd.path}: {file_hash}", Verbosity.Waffle)
         if status:
             status.close()
         self._tree_by_hash = by_hash
