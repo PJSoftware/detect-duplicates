@@ -23,14 +23,16 @@ def list():
             break
 
 def scan_extensions(find_ext: str = "") -> dict:
-    by_size = Folder_Data().scan('.')
+    files = Folder_Data(False)
+    by_size = files.data()
     check_case_sensitivity()
     by_ext = {}
     for size in by_size:
-        for file in by_size[size]:
-            ext = os.path.splitext(file)[1][1:]
+        for fd in by_size[size]:
+            ext = fd.extension()
             if config.IGNORE_CASE:
                 ext = ext.lower()
+            ## TODO: type of by_ext[ext] differs depending on parameter? Fix this!
             if ext != "":
                 if find_ext == "":
                     if ext not in by_ext:
@@ -39,7 +41,7 @@ def scan_extensions(find_ext: str = "") -> dict:
                 else:
                     if ext not in by_ext:
                         by_ext[ext] = []
-                    by_ext[ext].append(file)
+                    by_ext[ext].append(fd)
     return by_ext
 
 def check_case_sensitivity():

@@ -1,9 +1,10 @@
 import os
 from typing import Optional
 
+from .config import Verbosity
 from .output import output
 from . import config, progress, fingerprint
-from .config import Verbosity
+from . import plural
 
 class File_Data():
     name = ''
@@ -30,6 +31,7 @@ class File_Data():
     
 class Folder_Data():
     _tree_by_size: dict = {}
+    _tree_by_hash: dict = {}
 
     total_size = 0
     files_found = 0
@@ -37,11 +39,57 @@ class Folder_Data():
     files_rejected_cat = 0
     size_matched = 0
 
-    def __init__(self):
+    duplicates_found = 0
+    total_hashed_size = 0
+    files_hashed = 0
+
+    def __init__(self, calc_hashes: bool = True):
         self._scan('.')
+        if calc_hashes:
+            files_str = plural(self.files_found, "file")
+            output(f"> {files_str} found", Verbosity.Information)
+            output(f"> {self.size_matched} potential duplicates (same size files)", Verbosity.Information)
+            self._calculate_hashes()
 
     def data(self) -> dict:
         return self._tree_by_size
+
+    def hashes(self) -> dict:
+        return self._tree_by_hash
+
+    def _calculate_hashes(self) -> dict:
+        by_size = self.data()
+        output("Calculating hashes of same-sized files", Verbosity.Required)
+        if config.VERBOSITY_LEVEL == Verbosity.Required:
+            status = progress.Bar("  Hashing", 40, self.total_size)
+        else:
+            status = None
+        self.duplicates_found = 0
+        by_hash: dict = {}
+        for size in sorted(by_size.keys()):
+            count = len(by_size[size])
+            if count > 1:
+                output(f"Files of size {size}: {count}", Verbosity.Waffle)
+                for fd in by_size[size]:
+                    file_hash = fd.hash
+                    self.total_hashed_size += size
+                    if status:
+                        status.update(self.total_hashed_size, f"{self.files_hashed} of {self.size_matched}")
+                    if not size in by_hash:
+                        by_hash[size] = {}
+                    if not file_hash in by_hash[size]:
+                        by_hash[size][file_hash] = []
+
+                    by_hash[size][file_hash].append(fd)
+                    if len(by_hash[size][file_hash]) > 2:
+                        self.duplicates_found += 1
+                    elif len(by_hash[size][file_hash]) == 2:
+                        self.duplicates_found += 2
+
+                    output(f"{fd.file_path}: {file_hash}", Verbosity.Waffle)
+        if status:
+            status.close()
+        self._tree_by_hash = by_hash
 
     def _scan(self, dir: str):
         status: Optional[progress.Bar]
