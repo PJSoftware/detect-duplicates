@@ -60,7 +60,7 @@ class Folder_Data():
     def _calculate_hashes(self):
         by_size = self.data()
         output("Calculating hashes of same-sized files", Verbosity.Required)
-        status: progress.Bar = None
+        status: Optional[progress.Bar] = None
         if config.VERBOSITY_LEVEL == Verbosity.Required:
             status = progress.Bar("  Hashing", 40, self.total_size)
         self.duplicates_found = 0
@@ -92,11 +92,9 @@ class Folder_Data():
         self._tree_by_hash = by_hash
 
     def _scan(self, dir: str):
-        status: Optional[progress.Bar]
+        status: Optional[progress.Bar] = None
         if config.PROGRESS_BAR:
             status = progress.Bar(" Scanning", 40, 0)
-        else:
-            status = None
         self._tree_by_size = self._recurse_into_folder(dir, pb=status)
         if status:
             status.close()

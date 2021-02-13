@@ -3,6 +3,7 @@ import ntpath
 import os
 import re
 import shutil
+from typing import Optional
 
 from . import plural
 from .config import Verbosity
@@ -83,7 +84,7 @@ def report_duplicates(files: Folder_Data):
 def archive_duplicates(files: Folder_Data):
     by_hash = files.hashes()
     output("Archiving duplicates", Verbosity.Required)
-    status: progress.Bar = None
+    status: Optional[progress.Bar] = None
     if config.VERBOSITY_LEVEL == Verbosity.Required:
         status = progress.Bar("Archiving", 40, files.duplicates_found)
 
