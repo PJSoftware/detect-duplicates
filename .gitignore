@@ -3,3 +3,5 @@ __pycache__/
 _dup_archive_/
 .dup_fingerprint.cache
 .mypy_cache/
+dist/
+dup.egg-info/
