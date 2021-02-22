@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Dict, Optional
 
 from .config import Verbosity
 from .output import output
@@ -30,8 +30,8 @@ class File_Data():
         raise ValueError("hash must not be set manually; it is calculated internally")
     
 class Folder_Data():
-    _tree_by_size: dict = {}
-    _tree_by_hash: dict = {}
+    _tree_by_size: Dict[int, list] = {}
+    _tree_by_hash: Dict[str, dict] = {}
 
     total_size = 0
     files_found = 0
@@ -64,7 +64,7 @@ class Folder_Data():
         if config.VERBOSITY_LEVEL == Verbosity.Required:
             status = progress.Bar("  Hashing", 40, self.total_size)
         self.duplicates_found = 0
-        by_hash: dict = {}
+        by_hash: Dict[int, dict] = {}
         for size in sorted(by_size.keys()):
             count = len(by_size[size])
             if count > 1:
@@ -99,7 +99,7 @@ class Folder_Data():
         if status:
             status.close()
 
-    def _recurse_into_folder(self, dir: str, by_size: dict = {}, pb: progress.Bar = None) -> dict:
+    def _recurse_into_folder(self, dir: str, by_size: Dict[int, list] = {}, pb: progress.Bar = None) -> Dict[int, list]:
         """find all files under current folder and group by size"""
         output(f"Searching in {dir}", Verbosity.Information)
         for entry in os.scandir(dir):
