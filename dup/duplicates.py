@@ -3,12 +3,12 @@ import ntpath
 import os
 import re
 import shutil
-from typing import Optional
+import typing
 
 from . import plural
 from .config import Verbosity
 from .output import output, cleanse_output
-from .scan import Folder_Data
+from .scan import File_Data, Folder_Data
 from . import config, progress, fingerprint
 
 def find():
@@ -84,7 +84,7 @@ def report_duplicates(files: Folder_Data):
 def archive_duplicates(files: Folder_Data):
     by_hash = files.hashes()
     output("Archiving duplicates", Verbosity.Required)
-    status: Optional[progress.Bar] = None
+    status: typing.Optional[progress.Bar] = None
     if config.VERBOSITY_LEVEL == Verbosity.Required:
         status = progress.Bar("Archiving", 40, files.duplicates_found)
 
@@ -100,14 +100,14 @@ def archive_duplicates(files: Folder_Data):
             archive_folder = f"{config.ARCHIVE_FOLDER}/{size}-{hash[:6]}-{count}"
             os.makedirs(archive_folder, exist_ok=True)
 
-            copy_to(archive_folder, by_hash[size][hash][index])
+            copy_to(archive_folder, by_hash[size][hash][index].path)
             archived += 1
             if status:
                 status.update(archived, f"{archived} of {files.duplicates_found}")
             j = 1
             for i in range(count):
                 if i != index:
-                    move_to(archive_folder, by_hash[size][hash][i], j)
+                    move_to(archive_folder, by_hash[size][hash][i].path, j)
                     j += 1
                     archived += 1
                     if status:
@@ -116,9 +116,9 @@ def archive_duplicates(files: Folder_Data):
     if status:
         status.close()
 
-def determine_preferred_master(files: list) -> int:
-    for i, file_path in enumerate(files):
-        if not re.search("unsorted|copy", file_path, re.IGNORECASE):
+def determine_preferred_master(files: typing.List[File_Data]) -> int:
+    for i, file_data in enumerate(files):
+        if not re.search("unsorted|copy", file_data.path, re.IGNORECASE):
             return i
     return 0
 
