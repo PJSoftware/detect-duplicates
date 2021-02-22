@@ -3,7 +3,7 @@ import ntpath
 import os
 import re
 import shutil
-import typing
+from typing import Dict, List, Optional
 
 from . import plural
 from .config import Verbosity
@@ -43,7 +43,7 @@ def report_duplicates(files: Folder_Data):
     output(f"> {num_files} skipped for size ({acc_range}) or category", Verbosity.Required)
     output(f"> {dup} found", Verbosity.Required)
     if config.VERBOSITY_LEVEL == Verbosity.Required:
-        by_count: dict = {}
+        by_count: Dict[int, dict] = {}
         for size in by_hash:
             output(f"size: {size}", Verbosity.Waffle)
             for hash in by_hash[size]:
@@ -84,7 +84,7 @@ def report_duplicates(files: Folder_Data):
 def archive_duplicates(files: Folder_Data):
     by_hash = files.hashes()
     output("Archiving duplicates", Verbosity.Required)
-    status: typing.Optional[progress.Bar] = None
+    status: Optional[progress.Bar] = None
     if config.VERBOSITY_LEVEL == Verbosity.Required:
         status = progress.Bar("Archiving", 40, files.duplicates_found)
 
@@ -116,7 +116,7 @@ def archive_duplicates(files: Folder_Data):
     if status:
         status.close()
 
-def determine_preferred_master(files: typing.List[File_Data]) -> int:
+def determine_preferred_master(files: List[File_Data]) -> int:
     for i, file_data in enumerate(files):
         if not re.search("unsorted|copy", file_data.path, re.IGNORECASE):
             return i
