@@ -5,6 +5,7 @@ from . import config, plural
 
 import os
 import tempfile
+from typing import Dict
 
 def list():
     output("List extensions", Verbosity.Required)
@@ -30,7 +31,7 @@ def scan_extensions(find_ext: str = "") -> dict:
     files = Folder_Data(False)
     by_size = files.data()
     check_case_sensitivity()
-    by_ext: dict = {}
+    by_ext: Dict[str, dict] = {}
     for size in by_size:
         for fd in by_size[size]:
             ext = fd.ext
